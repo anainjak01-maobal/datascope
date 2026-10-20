@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>DataScope Maicao · libreta y panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap"/>
+<link rel="stylesheet" href="app.css?v=1"/>
+</head>
+<body>
+<main class="wrap">
+
+<header class="cabecera">
+  <p class="kicker">DataScope Maicao · uso interno del equipo</p>
+  <h1 id="titulo">Entrar</h1>
+  <p class="muted" id="subtitulo">Publicaciones públicas que el equipo vio entre el 3 y el 14 de agosto de 2026. Solo con clave.</p>
+  <nav class="acciones" id="barra" hidden>
+    <button class="btn" type="button" data-vista="panel">Panel</button>
+    <button class="btn" type="button" data-vista="registrar">Registrar</button>
+    <button class="btn" type="button" data-vista="libreta">Libreta</button>
+    <button class="btn" type="button" id="salir">Salir</button>
+  </nav>
+</header>
+
+<section id="vista-acceso" class="panel acceso">
+  <form id="acc-form" autocomplete="off">
+    <label class="campo">Clave del equipo
+      <input type="password" id="clave" required/>
+    </label>
+    <div class="acciones"><button class="btn primario" type="submit" id="acc-btn">Entrar</button></div>
+    <p class="msg" id="acc-msg" role="status"></p>
+  </form>
+</section>
+
+<section id="vista-panel" hidden>
+  <div class="panel filtros">
+    <label class="campo">Tema <select id="f-tema"></select></label>
+    <label class="campo">Canal <select id="f-canal"></select></label>
+    <p class="msg" id="panel-msg" role="status"></p>
+  </div>
+  <div class="kpis" id="kpis"></div>
+
+  <section class="bloque">
+    <div class="encabezado"><h2>Sin fuente, por canal</h2><p>Cada columna es un canal. Coral: el texto no dice quién lo afirma. Verde: sí nombra a una entidad o a un perfil.</p></div>
+    <div class="panel grafico" id="g-canales"></div>
+  </section>
+
+  <section class="bloque">
+    <div class="encabezado"><h2>Veces que circuló, según la fuente</h2><p>Veces que el equipo vio cada publicación. No es el alcance de la ciudad.</p></div>
+    <div class="panel grafico" id="g-veces"></div>
+  </section>
+
+  <section class="bloque">
+    <div class="encabezado"><h2>Canal contra fuente</h2><p>Canal y fuente se mezclan, por eso se leen juntos.</p></div>
+    <div class="tabla-wrap"><table class="tabla">
+      <thead><tr><th>Canal</th><th class="n">Sin fuente</th><th class="n">Veces (sin fuente)</th><th class="n">Con fuente</th><th class="n">Veces (con fuente)</th></tr></thead>
+      <tbody id="tbody-matriz"></tbody>
+    </table></div>
+  </section>
+
+  <section class="bloque">
+    <div class="encabezado"><h2>Publicaciones que nombran una entidad</h2><p>Se listan para que no desaparezcan del reporte.</p></div>
+    <div class="tabla-wrap"><table class="tabla">
+      <thead><tr><th>ID</th><th>Fecha</th><th>Canal</th><th>Tema</th><th class="n">Veces</th></tr></thead>
+      <tbody id="tbody-entidad"></tbody>
+    </table></div>
+  </section>
+
+  <section class="bloque">
+    <div class="encabezado"><h2>Lo que este panel no puede afirmar</h2></div>
+    <ul class="limites">
+      <li>Son 36 publicaciones que este grupo vio. No es una muestra al azar ni representa a toda Maicao.</li>
+      <li>"Sin fuente" no quiere decir "falso". No se contrastó con ninguna entidad.</li>
+      <li>Trece de las 16 publicaciones de WhatsApp no traen fuente. Por eso el canal y la fuente no se pueden separar del todo.</li>
+      <li>Las "veces" son las que el equipo vio, no el alcance real.</li>
+    </ul>
+  </section>
+</section>
+
+<section id="vista-registrar" hidden>
+  <div class="encabezado"><h2 id="r-titulo">Registrar una publicación</h2>
+    <p>Escribe lo que viste, con tus palabras. Nunca el nombre de la cuenta, un teléfono, un enlace ni el nombre del grupo.</p></div>
+  <form id="r-form" class="panel formulario" autocomplete="off">
+    <input type="hidden" id="r-id"/>
+    <div class="rejilla">
+      <label class="campo">Fecha <input type="date" id="r-fecha" required/></label>
+      <label class="campo">Canal <select id="r-canal"></select></label>
+      <label class="campo">Tema <select id="r-tema"></select></label>
+      <label class="campo">Fuente que nombra <select id="r-fuente"></select></label>
+      <label class="campo">¿Pide reenviar? <select id="r-reenvio"><option>No</option><option>Sí</option></select></label>
+      <label class="campo">Veces que circuló ante el equipo <input type="number" id="r-veces" min="0" max="9999" step="1" required/></label>
+    </div>
+    <label class="campo">Resumen (opcional, máximo 200 caracteres)
+      <textarea id="r-resumen" maxlength="200" rows="3"></textarea>
+    </label>
+    <div class="acciones">
+      <button class="btn primario" type="submit" id="r-guardar">Guardar publicación</button>
+      <button class="btn" type="button" id="r-limpiar">Limpiar</button>
+      <p class="msg" id="r-msg" role="status"></p>
+    </div>
+  </form>
+</section>
+
+<section id="vista-libreta" hidden>
+  <div class="encabezado"><h2>Libreta</h2><p id="l-resumen"></p></div>
+  <p class="msg" id="l-msg" role="status"></p>
+  <div class="tabla-wrap"><table class="tabla">
+    <thead><tr><th>ID</th><th>Fecha</th><th>Canal</th><th>Tema</th><th>Fuente</th><th>Reenvío</th><th class="n">Veces</th><th>Resumen</th><th></th></tr></thead>
+    <tbody id="tbody-libreta"></tbody>
+  </table></div>
+</section>
+
+<p class="pie">Datos de publicaciones públicas. Sin nombres de cuentas ni de grupos. Uso interno del equipo.</p>
+</main>
+
+<script src="config.js?v=1"></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>

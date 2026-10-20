@@ -1,0 +1,25 @@
+DATASCOPE MAICAO · LIBRETA Y PANEL (app web)
+I.E. N.º 6 Jorge Arrieta · Programación para Analítica de Datos · Ficha 3299150
+
+QUÉ ES
+Una página para que el equipo registre cada publicación que vio (canal, tema, fuente, si pide reenvío y veces que circuló) y vea el panel con los mismos números del informe. Solo el equipo entra, con clave.
+
+QUÉ NO GUARDA (según la ficha)
+- Nombres de cuentas, de grupos de chat, teléfonos, fotos ni capturas.
+- La palabra "falso" o "verdadero".
+- El resumen rechaza teléfonos, correos y enlaces, pero la responsabilidad de no escribir nombres es de quien registra.
+
+PASOS PARA PONERLA EN MARCHA
+1. Crea una hoja de Google nueva. Ponle un nombre como "DataScope libreta".
+2. Importa apps-script/publicaciones_inicial.csv como pestaña con nombre "Publicaciones" (Archivo > Importar > Reemplazar hoja actual o "Insertar nueva hoja"; la pestaña debe llamarse exactamente "Publicaciones").
+3. Revisa la columna B (Fecha): que queden fechas como 2026-08-03 y no conviertas el texto. Si Sheets las cambia, ponla en formato Texto sin formato.
+4. Extensiones > Apps Script. Pega el contenido de apps-script/Codigo.gs. Cambia CLAVE por la clave del equipo.
+5. Implementar > Nueva implementación > Aplicación web. Ejecutar como: Yo. Quién tiene acceso: Cualquier persona. Copia la dirección que termina en /exec.
+6. Pega esa dirección en config.js, en REGISTRO.
+7. Sube a GitHub: index.html, app.css, app.js, config.js (y la carpeta de fotos si se usan).
+8. Después de cambiar el código: Implementar > Administrar implementaciones > Versión nueva. La dirección /exec no cambia.
+
+LO QUE FALTA ANTES DE USARLA CON NUEVOS DATOS
+- Definir por escrito qué cuenta como público (pendiente 1 del informe). Hasta entonces, no registrar publicaciones de cadenas de chat familiares.
+- Segunda lectura: que dos personas clasifiquen la fuente y comparen (pendiente 2).
+- Esta versión no reemplaza la hoja de cálculo del equipo: es la misma información con un panel y un formulario.

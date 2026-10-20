@@ -1,0 +1,37 @@
+ID;Fecha;Canal;Tema;Fuente;Pide reenvío;Veces;Resumen;Creado
+P01;2026-08-03;WhatsApp;Salud;Ninguna;Sí;8;;2026-08-14 00:00
+P02;2026-08-03;WhatsApp;Seguridad;Ninguna;Sí;11;;2026-08-14 00:00
+P03;2026-08-03;Facebook;Seguridad;Entidad;No;6;;2026-08-14 00:00
+P04;2026-08-04;WhatsApp;Salud;Ninguna;Sí;9;;2026-08-14 00:00
+P05;2026-08-04;Facebook;Política;Solo un perfil;No;2;;2026-08-14 00:00
+P06;2026-08-04;Instagram;Política;Solo un perfil;No;1;;2026-08-14 00:00
+P07;2026-08-05;WhatsApp;Seguridad;Ninguna;Sí;7;;2026-08-14 00:00
+P08;2026-08-05;WhatsApp;Salud;Entidad;No;1;;2026-08-14 00:00
+P09;2026-08-05;Facebook;Salud;Ninguna;Sí;5;;2026-08-14 00:00
+P10;2026-08-06;WhatsApp;Política;Ninguna;Sí;6;;2026-08-14 00:00
+P11;2026-08-06;Facebook;Seguridad;Solo un perfil;Sí;4;;2026-08-14 00:00
+P12;2026-08-06;Instagram;Salud;Solo un perfil;No;1;;2026-08-14 00:00
+P13;2026-08-07;WhatsApp;Seguridad;Ninguna;Sí;10;;2026-08-14 00:00
+P14;2026-08-07;WhatsApp;Salud;Ninguna;No;2;;2026-08-14 00:00
+P15;2026-08-07;Facebook;Salud;Entidad;No;2;;2026-08-14 00:00
+P16;2026-08-07;Instagram;Seguridad;Ninguna;Sí;3;;2026-08-14 00:00
+P17;2026-08-10;WhatsApp;Política;Ninguna;Sí;8;;2026-08-14 00:00
+P18;2026-08-10;Facebook;Política;Ninguna;Sí;4;;2026-08-14 00:00
+P19;2026-08-10;Facebook;Seguridad;Solo un perfil;No;1;;2026-08-14 00:00
+P20;2026-08-10;WhatsApp;Salud;Solo un perfil;Sí;4;;2026-08-14 00:00
+P21;2026-08-11;WhatsApp;Seguridad;Ninguna;Sí;12;;2026-08-14 00:00
+P22;2026-08-11;Facebook;Salud;Solo un perfil;No;2;;2026-08-14 00:00
+P23;2026-08-11;Instagram;Política;Solo un perfil;No;0;;2026-08-14 00:00
+P24;2026-08-11;Facebook;Política;Entidad;No;1;;2026-08-14 00:00
+P25;2026-08-12;WhatsApp;Salud;Ninguna;Sí;5;;2026-08-14 00:00
+P26;2026-08-12;WhatsApp;Seguridad;Entidad;No;1;;2026-08-14 00:00
+P27;2026-08-12;Facebook;Seguridad;Ninguna;Sí;6;;2026-08-14 00:00
+P28;2026-08-12;Instagram;Salud;Entidad;No;1;;2026-08-14 00:00
+P29;2026-08-13;WhatsApp;Política;Ninguna;Sí;7;;2026-08-14 00:00
+P30;2026-08-13;Facebook;Salud;Ninguna;No;2;;2026-08-14 00:00
+P31;2026-08-13;Facebook;Política;Solo un perfil;Sí;3;;2026-08-14 00:00
+P32;2026-08-13;WhatsApp;Seguridad;Ninguna;Sí;9;;2026-08-14 00:00
+P33;2026-08-14;Facebook;Seguridad;Entidad;Sí;4;;2026-08-14 00:00
+P34;2026-08-14;Instagram;Política;Solo un perfil;No;1;;2026-08-14 00:00
+P35;2026-08-14;WhatsApp;Salud;Ninguna;Sí;6;;2026-08-14 00:00
+P36;2026-08-14;Facebook;Política;Ninguna;Sí;3;;2026-08-14 00:00
