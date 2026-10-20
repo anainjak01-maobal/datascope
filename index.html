@@ -5,22 +5,35 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>DataScope Maicao · libreta y panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=IBM+Plex+Serif:wght@600;700&display=swap"/>
-<link rel="stylesheet" href="app.css?v=1"/>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Figtree:wght@400;600;700&display=swap"/>
+<link rel="stylesheet" href="app.css?v=4"/>
 </head>
 <body>
 <main class="wrap">
 
-<header class="cabecera">
-  <p class="kicker">DataScope Maicao · uso interno del equipo</p>
-  <h1 id="titulo">Entrar</h1>
-  <p class="muted" id="subtitulo">Publicaciones públicas que el equipo vio entre el 3 y el 14 de agosto de 2026. Solo con clave.</p>
-  <nav class="acciones" id="barra" hidden>
-    <button class="btn" type="button" data-vista="panel">Panel</button>
-    <button class="btn" type="button" data-vista="registrar">Registrar</button>
-    <button class="btn" type="button" data-vista="libreta">Libreta</button>
-    <button class="btn" type="button" id="salir">Salir</button>
-  </nav>
+<header class="hero">
+  <div class="wrap">
+    <p class="kicker">DataScope Maicao · uso interno del equipo</p>
+    <h1 id="titulo">Entrar</h1>
+    <p class="muted" id="subtitulo">Publicaciones públicas que el equipo vio entre el 3 y el 14 de agosto de 2026. Solo con clave.</p>
+    <nav class="acciones" id="barra" hidden>
+      <button class="btn" type="button" data-vista="panel">Panel</button>
+      <button class="btn" type="button" data-vista="registrar">Registrar</button>
+      <button class="btn" type="button" data-vista="libreta">Libreta</button>
+      <button class="btn" type="button" id="salir">Salir</button>
+    </nav>
+  </div>
+  <div class="red-wrap">
+    <svg id="red" viewBox="0 0 1000 340" role="img" aria-label="Red de publicaciones por canal"></svg>
+    <div class="tip" id="tip" hidden></div>
+  </div>
+  <div class="leyenda">
+    <span><i class="pt sin"></i>Sin fuente</span>
+    <span><i class="pt con"></i>Con fuente</span>
+    <span><i class="lin"></i>Pide reenvío</span>
+    <span>Tamaño: veces que circuló</span>
+    <span>Toca un canal para verlo en el panel</span>
+  </div>
 </header>
 
 <section id="vista-acceso" class="panel acceso">
@@ -143,6 +156,6 @@
 </main>
 
 <script src="config.js?v=1"></script>
-<script src="app.js?v=1"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>
