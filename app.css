@@ -94,3 +94,4 @@ svg .etiq { font-size:14px; font-weight:600; }
   .kpi .val { font-size:28px; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+.nota { font-size:14px; color:var(--ink2); margin:12px 2px 0; max-width:80ch; }

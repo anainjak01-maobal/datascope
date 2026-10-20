@@ -102,7 +102,7 @@
   function pintarPanel() {
     if (!datos.length) {
       msg($("panel-msg"), "Todavía no hay publicaciones registradas.");
-      ["kpis", "g-canales", "g-veces", "tbody-matriz", "tbody-entidad"].forEach(function (id) { $(id).innerHTML = ""; });
+      ["kpis", "g-canales", "g-veces", "tbody-matriz", "tbody-entidad", "e-proporcion", "e-prop-tabla", "e-contingencia", "e-chi", "e-veces", "e-histograma", "e-reenvio"].forEach(function (id) { $(id).innerHTML = ""; });
       return;
     }
     var rs = filasFiltradas();
@@ -126,6 +126,7 @@
         (k.sub ? '<div class="sub">' + esc(k.sub) + '</div>' : "") + "</div>";
     }).join("");
     $("g-canales").innerHTML = graficoCanales(rs);
+    pintarEstadistica(rs);
     $("g-veces").innerHTML = graficoVeces(rs);
     $("tbody-matriz").innerHTML = CANALES.map(function (c) {
       var del = rs.filter(function (d) { return d.canal === c; });
@@ -138,6 +139,169 @@
       return "<tr><td>" + esc(d.id) + "</td><td>" + esc(d.fecha) + "</td><td>" + esc(d.canal) + "</td><td>" + esc(d.tema) +
         '</td><td class="n">' + d.veces + "</td></tr>";
     }).join("") : '<tr><td colspan="5" class="muted">Ninguna con estos filtros.</td></tr>';
+  }
+
+  /* ---------- Estadística ---------- */
+  function rng(seed) {
+    var a = seed >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) | 0;
+      var t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function cuantil(arr, q) {
+    var s = arr.slice().sort(function (a, b) { return a - b; });
+    var pos = (s.length - 1) * q, lo = Math.floor(pos), hi = Math.ceil(pos);
+    return s[lo] + (s[hi] - s[lo]) * (pos - lo);
+  }
+  function mediana(a) { return a.length ? cuantil(a, 0.5) : null; }
+  function icMedia(a) {
+    if (a.length < 2) return null;
+    var R = rng(42), n = a.length, medias = [];
+    for (var b = 0; b < 4000; b++) {
+      var s = 0;
+      for (var i = 0; i < n; i++) s += a[Math.floor(R() * n)];
+      medias.push(s / n);
+    }
+    return [cuantil(medias, 0.025), cuantil(medias, 0.975)];
+  }
+  function wilson(k, n) {
+    if (!n) return null;
+    var z = 1.96, p = k / n, z2 = z * z, den = 1 + z2 / n;
+    var centro = (p + z2 / (2 * n)) / den;
+    var mitad = z * Math.sqrt(p * (1 - p) / n + z2 / (4 * n * n)) / den;
+    return [Math.max(0, centro - mitad), Math.min(1, centro + mitad)];
+  }
+  function pctTxt(x) { return x == null ? "—" : Math.round(x * 100) + " %"; }
+  function pvalor(p) { return p < 0.001 ? "< 0,001" : p.toFixed(3).replace(".", ","); }
+  function chiCuadrado(rs) {
+    var filas = CANALES.map(function (c) {
+      var del = rs.filter(function (d) { return d.canal === c; });
+      return [del.filter(function (d) { return d.fuente === "Ninguna"; }).length, del.filter(function (d) { return d.fuente !== "Ninguna"; }).length];
+    });
+    var tot = filas.reduce(function (s, f) { return s + f[0] + f[1]; }, 0);
+    var colSin = filas.reduce(function (s, f) { return s + f[0]; }, 0), colCon = tot - colSin;
+    if (!tot || !colSin || !colCon || filas.some(function (f) { return f[0] + f[1] === 0; })) return null;
+    var x2 = 0, minE = Infinity;
+    filas.forEach(function (f) {
+      var nf = f[0] + f[1];
+      [[f[0], colSin], [f[1], colCon]].forEach(function (par) {
+        var E = nf * par[1] / tot;
+        minE = Math.min(minE, E);
+        x2 += Math.pow(par[0] - E, 2) / E;
+      });
+    });
+    // Tabla de 3 canales x 2 columnas: df = 2, y para df = 2 el valor p es exp(-x2 / 2).
+    return { x2: x2, p: Math.exp(-x2 / 2), minE: minE };
+  }
+  function graficoProporciones(filas) {
+    var W = 640, H = 280, L = 52, R = 20, T = 20, B = 52, pw = W - L - R, ph = H - T - B;
+    function sy(v) { return T + ph - v * ph; }
+    var out = "";
+    [0, 0.25, 0.5, 0.75, 1].forEach(function (v) {
+      out += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + sy(v) + '" y2="' + sy(v) + '" stroke="' + COL_GRID + '"/>' +
+        '<text class="eje" x="' + (L - 8) + '" y="' + (sy(v) + 4) + '" text-anchor="end">' + Math.round(v * 100) + " %</text>";
+    });
+    var slot = pw / filas.length;
+    filas.forEach(function (x, i) {
+      var cx = L + slot * i + slot / 2;
+      if (x.p == null) out += '<text class="eje" x="' + cx + '" y="' + (sy(0) - 10) + '" text-anchor="middle">sin datos</text>';
+      else {
+        var c0 = sy(x.ci[0]), c1 = sy(x.ci[1]);
+        out += '<line x1="' + cx + '" x2="' + cx + '" y1="' + c1 + '" y2="' + c0 + '" stroke="#e8eef5" stroke-width="2"/>' +
+          '<line x1="' + (cx - 10) + '" x2="' + (cx + 10) + '" y1="' + c0 + '" y2="' + c0 + '" stroke="#e8eef5" stroke-width="2"/>' +
+          '<line x1="' + (cx - 10) + '" x2="' + (cx + 10) + '" y1="' + c1 + '" y2="' + c1 + '" stroke="#e8eef5" stroke-width="2"/>' +
+          '<circle cx="' + cx + '" cy="' + sy(x.p) + '" r="7" fill="' + COL_SIN + '"><title>' + x.l + ": " + pctTxt(x.p) +
+          " sin fuente (intervalo 95 %: " + pctTxt(x.ci[0]) + " a " + pctTxt(x.ci[1]) + ")</title></circle>" +
+          '<text class="etiq" x="' + (cx + 14) + '" y="' + (sy(x.p) - 8) + '">' + pctTxt(x.p) + "</text>";
+      }
+      out += '<text class="etiq" x="' + cx + '" y="' + (H - B + 24) + '" text-anchor="middle">' + x.l + "</text>" +
+        '<text class="eje" x="' + cx + '" y="' + (H - B + 42) + '" text-anchor="middle">n = ' + x.n + "</text>";
+    });
+    return '<svg class="chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Proporción sin fuente con intervalo de confianza">' + out + "</svg>";
+  }
+  function graficoHistograma(rs) {
+    var W = 640, H = 280, L = 44, R = 16, T = 44, B = 56, pw = W - L - R, ph = H - T - B;
+    var bins = [{ l: "0 a 2", a: 0, b: 2 }, { l: "3 a 5", a: 3, b: 5 }, { l: "6 a 8", a: 6, b: 8 }, { l: "9 o más", a: 9, b: 1e9 }];
+    var filas = bins.map(function (bn) {
+      var del = rs.filter(function (d) { return d.veces >= bn.a && d.veces <= bn.b; });
+      var sin = del.filter(function (d) { return d.fuente === "Ninguna"; }).length;
+      return { l: bn.l, sin: sin, con: del.length - sin };
+    });
+    var max = Math.max(1, Math.max.apply(null, filas.map(function (f) { return f.sin + f.con; }))) * 1.15;
+    function sy(v) { return T + ph - (v / max) * ph; }
+    var out = "";
+    [0, 0.5, 1].forEach(function (t) {
+      var v = Math.round(max * t);
+      out += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + sy(v) + '" y2="' + sy(v) + '" stroke="' + COL_GRID + '"/>' +
+        '<text class="eje" x="' + (L - 8) + '" y="' + (sy(v) + 4) + '" text-anchor="end">' + v + "</text>";
+    });
+    var slot = pw / filas.length, bw = Math.min(100, slot * 0.5);
+    filas.forEach(function (f, i) {
+      var cx = L + slot * i + slot / 2, x = cx - bw / 2, tot = f.sin + f.con;
+      if (f.sin) out += '<rect class="barra" x="' + x + '" y="' + sy(f.sin) + '" width="' + bw + '" height="' + (sy(0) - sy(f.sin)) +
+        '" rx="4" fill="' + COL_SIN + '"><title>' + f.l + " veces: " + f.sin + " sin fuente</title></rect>";
+      if (f.con) out += '<rect class="barra" x="' + x + '" y="' + sy(tot) + '" width="' + bw + '" height="' + (sy(f.sin) - sy(tot)) +
+        '" rx="4" fill="' + COL_CON + '"><title>' + f.l + " veces: " + f.con + " con fuente</title></rect>";
+      if (tot) out += '<text class="etiq" x="' + cx + '" y="' + (sy(tot) - 8) + '" text-anchor="middle">' + tot + "</text>";
+      out += '<text class="etiq" x="' + cx + '" y="' + (H - B + 24) + '" text-anchor="middle">' + f.l + "</text>";
+    });
+    out += '<text class="eje" x="' + L + '" y="' + (H - 10) + '">Veces que el equipo vio la publicación</text>' +
+      '<rect x="' + L + '" y="14" width="12" height="12" rx="3" fill="' + COL_SIN + '"/><text class="eje" x="' + (L + 18) + '" y="25">Sin fuente</text>' +
+      '<rect x="' + (L + 110) + '" y="14" width="12" height="12" rx="3" fill="' + COL_CON + '"/><text class="eje" x="' + (L + 128) + '" y="25">Con fuente</text>';
+    return '<svg class="chart" viewBox="0 0 ' + W + " " + H + '" role="img" aria-label="Histograma de veces que circuló">' + out + "</svg>";
+  }
+  function pintarEstadistica(rs) {
+    var tot = rs.length;
+    var sinTot = rs.filter(function (d) { return d.fuente === "Ninguna"; }).length;
+    var filasProp = [{ l: "Todas", k: sinTot, n: tot }].concat(CANALES.map(function (c) {
+      var del = rs.filter(function (d) { return d.canal === c; });
+      return { l: c, k: del.filter(function (d) { return d.fuente === "Ninguna"; }).length, n: del.length };
+    })).map(function (x) { x.p = x.n ? x.k / x.n : null; x.ci = wilson(x.k, x.n); return x; });
+    $("e-proporcion").innerHTML = graficoProporciones(filasProp);
+    $("e-prop-tabla").innerHTML = '<table class="tabla"><thead><tr><th>Grupo</th><th class="n">Sin fuente</th><th class="n">Total</th><th class="n">Proporción</th><th class="n">Intervalo 95 %</th></tr></thead><tbody>' +
+      filasProp.map(function (x) {
+        return "<tr><td>" + x.l + '</td><td class="n">' + x.k + '</td><td class="n">' + x.n + '</td><td class="n">' + pctTxt(x.p) +
+          '</td><td class="n">' + (x.ci ? pctTxt(x.ci[0]) + " a " + pctTxt(x.ci[1]) : "—") + "</td></tr>";
+      }).join("") + "</tbody></table>";
+
+    var cont = CANALES.map(function (c) {
+      var del = rs.filter(function (d) { return d.canal === c; });
+      var s = del.filter(function (d) { return d.fuente === "Ninguna"; }).length;
+      return { c: c, s: s, k: del.length - s, n: del.length };
+    });
+    $("e-contingencia").innerHTML = '<table class="tabla"><thead><tr><th>Canal</th><th class="n">Sin fuente</th><th class="n">% del canal</th><th class="n">Con fuente</th><th class="n">% del canal</th><th class="n">Total</th></tr></thead><tbody>' +
+      cont.map(function (x) {
+        return "<tr><td>" + x.c + '</td><td class="n">' + x.s + '</td><td class="n">' + pctTxt(x.n ? x.s / x.n : null) +
+          '</td><td class="n">' + x.k + '</td><td class="n">' + pctTxt(x.n ? x.k / x.n : null) + '</td><td class="n">' + x.n + "</td></tr>";
+      }).join("") + "</tbody></table>";
+    var chi = chiCuadrado(rs);
+    $("e-chi").textContent = !chi
+      ? "Con estos filtros no hay datos suficientes para la prueba chi-cuadrado."
+      : "Chi-cuadrado = " + dec(chi.x2) + ", valor p = " + pvalor(chi.p) + ". " +
+        (chi.p < 0.05 ? "La diferencia entre canales es mayor de lo que se esperaría por azar" : "No hay evidencia de que el canal cambie la proporción de fuentes") +
+        " (nivel de 0,05)." + (chi.minE < 5 ? " Hay celdas con menos de 5 casos: la prueba es solo orientativa." : "");
+
+    var vf = FUENTES.map(function (f) {
+      var v = rs.filter(function (d) { return d.fuente === f; }).map(function (d) { return d.veces; });
+      return { f: f, n: v.length, m: promedio(v), med: mediana(v), ci: icMedia(v) };
+    });
+    $("e-veces").innerHTML = '<table class="tabla"><thead><tr><th>Fuente</th><th class="n">n</th><th class="n">Media</th><th class="n">Mediana</th><th class="n">Intervalo 95 % de la media</th></tr></thead><tbody>' +
+      vf.map(function (x) {
+        return "<tr><td>" + x.f + '</td><td class="n">' + x.n + '</td><td class="n">' + dec(x.m) + '</td><td class="n">' + dec(x.med) +
+          '</td><td class="n">' + (x.ci ? dec(x.ci[0]) + " a " + dec(x.ci[1]) : "—") + "</td></tr>";
+      }).join("") + "</tbody></table>";
+    $("e-histograma").innerHTML = graficoHistograma(rs);
+
+    $("e-reenvio").innerHTML = '<table class="tabla"><thead><tr><th>Fuente</th><th class="n">Piden reenvío</th><th class="n">%</th><th class="n">No piden</th><th class="n">%</th><th class="n">Total</th></tr></thead><tbody>' +
+      FUENTES.map(function (f) {
+        var del = rs.filter(function (d) { return d.fuente === f; });
+        var si = del.filter(function (d) { return d.reenvio === "Sí"; }).length, no = del.length - si;
+        return "<tr><td>" + f + '</td><td class="n">' + si + '</td><td class="n">' + pctTxt(del.length ? si / del.length : null) +
+          '</td><td class="n">' + no + '</td><td class="n">' + pctTxt(del.length ? no / del.length : null) + '</td><td class="n">' + del.length + "</td></tr>";
+      }).join("") + "</tbody></table>";
   }
 
   function graficoCanales(rs) {
