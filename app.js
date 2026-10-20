@@ -2,7 +2,8 @@
   "use strict";
   var CFG = window.DS_CONFIG || {};
   var CANALES = ["WhatsApp", "Facebook", "Instagram"];
-  var TEMAS = ["Salud", "Seguridad", "Política"];
+  var TEMAS_ANALISIS = ["Salud", "Seguridad", "Política"];
+  var TEMAS = TEMAS_ANALISIS.concat(["Otros"]);
   var FUENTES = ["Entidad", "Solo un perfil", "Ninguna"];
   var COL_SIN = "#f28c6b", COL_CON = "#7fd1c7", COL_EJE = "#9db0c4", COL_GRID = "#24395a";
   var clave = "", datos = [], filtros = { tema: "Todos", canal: "Todos" };
@@ -81,7 +82,7 @@
 
   /* ---------- Filtros del panel ---------- */
   function llenarFiltros() {
-    $("f-tema").innerHTML = ["Todos"].concat(TEMAS).map(function (t) {
+    $("f-tema").innerHTML = ["Todos"].concat(TEMAS_ANALISIS).map(function (t) {
       return '<option' + (t === filtros.tema ? " selected" : "") + ">" + esc(t) + "</option>";
     }).join("");
     $("f-canal").innerHTML = ["Todos"].concat(CANALES).map(function (c) {
@@ -93,7 +94,7 @@
 
   function filasFiltradas() {
     return datos.filter(function (d) {
-      return (filtros.tema === "Todos" || d.tema === filtros.tema) && (filtros.canal === "Todos" || d.canal === filtros.canal);
+      return d.tema !== "Otros" && (filtros.tema === "Todos" || d.tema === filtros.tema) && (filtros.canal === "Todos" || d.canal === filtros.canal);
     });
   }
 
