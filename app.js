@@ -47,7 +47,7 @@
       var ang = r() * Math.PI * 2, dist = 58 + Math.sqrt(r()) * 118;
       var x = CENTRO_X[d.canal] + Math.cos(ang) * dist, y = CENTRO_Y + Math.sin(ang) * dist * 0.78;
       var rad = decor ? 6 : 4 + Math.min(d.veces, 12) * 0.9;
-      var color = decor ? "rgba(255,255,255,.6)" : (d.fuente === "Ninguna" ? "#F0583A" : "#7FF0CF");
+      var color = decor ? "rgba(148,163,184,.55)" : (d.fuente === "Ninguna" ? "#FF7A5C" : "#5EEAD4");
       var tip = decor ? "Inicia sesión para ver las publicaciones reales" :
         d.canal + " · " + d.tema + " · " + (d.fuente === "Ninguna" ? "sin fuente" : "fuente: " + d.fuente.toLowerCase()) +
         " · " + d.veces + (d.veces === 1 ? " vez" : " veces") + (d.reenvio === "Sí" ? " · pide reenvío" : "");
@@ -110,6 +110,9 @@
   var VISTAS = ["panel", "registrar", "libreta"];
   function mostrar(vista) {
     VISTAS.forEach(function (v) { $("vista-" + v).hidden = v !== vista; });
+    var enPanel = vista === "panel";
+    $("red").parentNode.hidden = !enPanel;
+    document.querySelector(".leyenda").hidden = !enPanel;
     document.querySelectorAll("[data-vista]").forEach(function (b) {
       b.setAttribute("aria-current", b.dataset.vista === vista ? "page" : "false");
     });
@@ -146,6 +149,8 @@
     $("titulo").textContent = "Entrar";
     msg($("acc-msg"), "");
     dibujarRed([]);
+    $("red").parentNode.hidden = false;
+    document.querySelector(".leyenda").hidden = false;
   });
 
   /* ---------- Carga de datos ---------- */
